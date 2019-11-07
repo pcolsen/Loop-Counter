@@ -3,6 +3,13 @@
 (defvar input-buffer nil)
 (defvar output-buffer nil)
 
+(defun is-c-file-p (file-name)
+  (let ((extension (file-name-extention file-name))
+	(c-file-extensions (list "c" "cc" "c++" "cpp" "C" "CC" "CPP" "C++")))
+    (if (member extension c-file-extensions)
+	t
+      '())))
+
 (defun say-thing (thing)
   "This function takes a 'thing', formats it into 
    a string, then both writes it as a message and
@@ -13,14 +20,14 @@
       (insert (concat ";;;" string "\n")))))
 		 
 ;;; I HAVE TO FINISH REFACTORING THIS
-(defun count-loops-directory (target-directory-name)
-  ;; Is the directory accessible and writable. Bail if not
+(defun count-loops-directory (&optional target-directory-name
+					target-buffer)
+
   (let ((target-directory-true-name (truename target-directory-name)))
-    (if (file-accessible-directory-p target-directory-true-name
-      ;; Directory is writable, so we process it.
-      (let (;; Need canonical directory name to write output file
-	    (output-directory-name 
-	     (file-name-as-directory target-directory-name))
+    ;; Is the directory accessible and writable. Bail if not
+    (if (file-accessible-directory-p target-directory-true-name)
+	;; Directory is accessible and writable, so we process it.
+	(let ((output-directory-name (file-name-as-directory target-directory-name))
 	    ;; True name to label output file
 	    (directory-true-name (truename target-directory-name)))
 	(let (;; All output will be written to a buffer for one file.
