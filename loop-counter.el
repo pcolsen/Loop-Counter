@@ -10,6 +10,9 @@
 	t
       '())))
 
+(defun process-c-file (filename buffername)
+  )
+
 (defun say-thing (thing)
   "This function takes a 'thing', formats it into 
    a string, then both writes it as a message and
