@@ -8,9 +8,9 @@
 ;;; constructor
 
 
-(let ((count-list nil))
-  "This let construction makes a closure used for counting things.
-   the function counts things using an association list.
+(defmacro make-counter (counter-closure)
+  "This macro makes a closure used for counting things.
+   The produced function counts things using an association list.
    You can think of thie as an array indexed by the th8ngs 
    being couinted.  The first element of each of the association
    cells is one of the things to be counted (analogous to an 
@@ -21,33 +21,32 @@
    before, it creates a count for thing initializing it to 1.
    Calling it with a nil argument returns the
    count-list without changing any of the counts."
-  (setq counter-closure
-	(lambda (&optional thing) ;; thing is what is to be counted
-	  ;; (mmp (list "Initial argument: thing: " thing))
-	  (cond
-	   ((and thing count-list) ;; Here we have a thing to be
-	    ;; counted and a list of counts of things.  We're going
-	    ;; to update the count of thing,  We'll then return
-	    ;; count-list.
-	    (let ((count-pair (assoc thing count-list)))
-	      (if count-pair
-		  (let ((current-count (car (cdr count-pair))))
-		    ;; (mmp count-pair)
-		    ;; (mmp current-count)
-		    (setcdr count-pair (list (+ 1 current-count))))
-		(setq count-list (cons (list thing 1) count-list)))
-	      count-list))  ;; We'll return the count list
-	   (thing
-	    ;; This will be the first thing to be counted, so
-	    ;; we have to create the count-list from scrath,
-	    ;; then return it.
-	    ;; (mmp (list "Entering initial count: " thing))
-	    (setq count-list (list (list thing 1)))) 
-	   (t
-	    ;; We've been called with a nil argument, so we'll
-	    ;; just return the count-list.
-	    count-list)))))
-
+  (list 'let (list (list 'count-list nil)
+      (list 'setq counter-closure
+	    (list 'lambda (list '&optional 'thing) 
+		  (list 'cond
+			(list (list 'and 'thing 'count-list)
+			      (list 'let (list
+					  (list 'count-pair
+						(list 'assoc 'thing 'count-list)))
+				    (list 'if 'count-pair
+					  (list 'let
+						(list
+						 (list 'current-count
+						       (list 'car (list 'cdr 'count-pair))))
+						(list 'setcdr 'count-pair
+						      (list 'list
+							    (list  '1+ 'current-count))))
+					  (list 'setq 'count-list
+						(list 'cons
+						      (list 'list 'thing 1) 'count-list)))
+				    'count-list))  
+			(list 'thing
+			      (list 'setq 'count-list
+				    (list 'list
+					  (list 'list 'thing 1)))) 
+			(list t
+			      'count-list)))))))
 (provide 'count-closure)
 ;;; Definition of count-closure ends here
 
@@ -71,6 +70,5 @@
 ;;; Definition of stack-closure ends here
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 

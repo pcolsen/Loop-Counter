@@ -1,20 +1,19 @@
 ;;;-*- mode: Emacs-lisp; lexical-binding: t ; -*-
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Define the stacks we'll use for c-files and directorys
-;;; along with syntactic sugar to make them easy to use.
-(defvar file-stack-closure nil
-  "Stack onto which push files to be processed")
-(defvar directory-stack-closure nil
-  "Stack onto which to push directories to be processed")
+;;;;;;;;;; Define stacks for files and directories ;;;;;;;;;
 (make-stack c-file-stack-closure)
 (make-stack directory-stack-closure)
-(define push-c-file-stack (thing) (funcall c-file-stack-closure thing))
-(define pop-c-file-stack () (funcall c-file-stack-closure nil))
-(define push-directory-stack (thing) (funcall directory-stack-closure thing))
-(define pop-directory-stack () (funcall directory-stack-closure nil))
+(defun push-c-file-stack (thing) (funcall c-file-stack-closure thing))
+(defun pop-c-file-stack () (funcall c-file-stack-closure nil))
+(defun push-directory-stack (thing) (funcall directory-stack-closure thing))
+(defun pop-directory-stack () (funcall directory-stack-closure nil))
 ;;;;;;;;;; End of stack definitions ;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;; Define a counter to hold length counts ;;;;;;;;;;
+(make-counter length-counter)
+(defun bump-length-count (thing) (funcall length-counter thing))
+(defun get-length-count () (funcall length-counter nil))
+;;;;;;;;;; End of counter definition ;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar output-buffer nil
   "This is the buffer into which we'll write all the
@@ -94,11 +93,5 @@
 		   "opened or is not writable")))))
   nil)
 
-(defun test-setup ()
-  (defvar output-buffer '())
-  (defvar test-dir-name "~/temp/loop-counter-test-dir")
-  (if (not ((file-accessible-directory-p test-dir-name)))
-      (make-directory test-dir-name))
-      
+
 	
-  
