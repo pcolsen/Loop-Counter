@@ -57,28 +57,34 @@
 (provide 'count-thing)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defvar stack)
+(defmacro make-stack (stack-name)
+  "This macro returns a closure that can be used as a stack"
+  (list 'let (list (list 'stack-list nil))
+	(list  'setq stack-name
+	       (list 'lambda (list '&optional 'thing) ;; push thing onto stack
+		     (list 'if 'thing
+			   (list 'push 'thing 'stack-list)
+			   (list 'pop 'stack-list))))))
 
-(let ((stack-list nil))
-  "This let construction is a stack using the list stack-list
-   as the stack structure itself.  If it is called with a non-nil
-   argument, that argument is pushed onto the stack and the
-   stacklist is returned.  If the argument is nil, then the stack
-   is popped and the popped element is returned."
-  (setq stack-closure
-	(lambda (&optional thing) ;; thing is what is to be counted
-	  ;; (mmp (list "Initial argument: thing: " thing))
-	    (if thing
-		(push thing stack-list)
-	      (pop stack-list)))))
 
-(provide 'stack-closure)
+
+
+;; (let ((stack-list nil))
+;;   "This let construction is a stack using the list stack-list
+;;    as the stack structure itself.  If it is called with a non-nil
+;;    argument, that argument is pushed onto the stack and the
+;;    stacklist is returned.  If the argument is nil, then the stack
+;;    is popped and the popped element is returned."
+;;   (setq stack-closure
+;; 	(lambda (&optional thing) ;; thing is what is to be counted
+;; 	  ;; (mmp (list "Initial argument: thing: " thing))
+;; 	    (if thing
+;; 		(push thing stack-list)
+;; 	      (pop stack-list)))))
+
+(provide 'make-stack)
 ;;; Definition of stack-closure ends here
 
-(defun stack-thing (thing)
-  (funcall stack-closure thing))
-
-(provide 'stack-thing)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
