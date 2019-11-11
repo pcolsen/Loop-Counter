@@ -1,5 +1,6 @@
 ;;;-*- mode: Emacs-lisp; lexical-binding: t ; -*-
 
+(load-file "loop-utilities.el")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; This section defines the regular expression for finding
@@ -33,12 +34,13 @@
 (defconst do-expr (rx (minimal-match (sequence "do" (zero-or-more blank) "{"))))
 
 ;;; This is the final regexp that should find all loops
-(defconst loop-regexp (rx (minimal-match
-			   (or (eval for-expr) (eval while-expr) (eval do-expr)))))
+;;(defconst loop-regexp (rx (minimal-match
+;;			   (or (eval for-expr) (eval while-expr) (eval do-expr)))))
 
 ;;; End of loop-finding regexps
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(setq loop-regexp "for")
 				 
 
 ;;; This function count the loop lengths one <filename>.c file
@@ -49,17 +51,21 @@
    buffer containing a .C-type file and returns an assocition
    list containg the counts of each buffer length. The
    buffer is assumed to be live and not checks are done."
+  (message "entering process-c-buffer")
   (with-current-buffer in-buffer
     (goto-char (point-min))
-    (while (< (point) (point-max))
-      (re-search-forward
-       loop-regexp
-       (let ((start-point (point)))
-	 (save-excursion
-	   (forward-sexp)
-	   (let ((length (- (point) start-point)))
-	     (count-thing length)))))))
-  (count-thing))
+    (while t ;(< (point) (point-max))
+      (progn
+	(re-search-forward loop-regexp)
+	(let ((start-point (point)))
+	  (message (concat "just before save-excursion in process-c-buffer at point: "
+			   (format "%s" start-point)))
+	  (save-excursion
+	    (message "inside save excursion")
+	    (forward-sexp)
+	    (let ((length (- (point) start-point)))
+	      (count-thing length))))))
+      (count-thing)))
 
 (defun process-c-file (in-file-name)
   "The function opens a file, then passes the resulting buffer
@@ -69,10 +75,14 @@
    an error string.  The calling function can determine whether
    or not this function exited with an error by checking the type
    of object returned: string or list"
+  (message "Engering process-c-file")
   (let ((file-buffer (find-file-read-only in-file-name)))
     (if file-buffer
 	(process-c-buffer file-buffer)
       (concat "process-c-file: could not open file: " in-file-name))))
+
+(defun test-file-name (filename)
+  (concat (file-truename "/Users/pcolsen/Dropbox/D.Projects/Loop Counter/") filename))
   
 	 
 			 
